@@ -26,9 +26,7 @@ class ViewController: UIViewController {
     }
     
     func setupEventSource() {
-        guard let url = NSURL(string: "http://127.0.0.1:8000/stream") else {
-            return
-        }
+        let url = NSURL(string: "http://127.0.0.1:8000/stream")!
         
         eventSource = EventSource(url: url)
 
@@ -51,14 +49,8 @@ class ViewController: UIViewController {
     }
     
     func updateStatusView(event: Event) {
-        if let _ = event.error {
-            statusLabel.text = "Error"
-            statusView.backgroundColor = UIColor.orangeColor()
-        }
-        else {
-            statusLabel.text = event.readyState.rawValue
-            statusView.backgroundColor = event.readyState.color()
-        }
+        statusLabel.text = event.readyState.rawValue.capitalizedString
+        statusView.backgroundColor = event.readyState.color()
     }
     
     func handleMessage(event: Event) {
@@ -126,9 +118,13 @@ extension EventSourceState {
     func color() -> UIColor {
         switch self {
         case .Open:
-            return UIColor.greenColor()
+            return UIColor(red: 34/255, green: 139/255, blue: 34/255, alpha: 1)
         case .Closed:
             return UIColor.redColor()
+        case .Error:
+            return UIColor.orangeColor()
+        default:
+            return UIColor.clearColor()
         }
     }
     

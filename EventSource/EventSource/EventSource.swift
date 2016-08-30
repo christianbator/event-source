@@ -8,18 +8,33 @@
 
 import Foundation
 
+public let EventIDKey = "id"
+public let EventNameKey = "event"
+public let EventDataKey = "data"
+public let EventRetryKey = "retry"
+
+private let KeyValueDelimiter = ": "
+private let EventKeyValuePairSeparator = "\n"
+
+private let EventSeparatorLFLF = "\n\n"
+private let EventSeparatorCRCR = "\r\r"
+private let EventSeparatorCRLFCRLF = "\r\n\r\n"
+
 public enum EventSourceState: String {
-    case Open
-    case Closed
+    case Default = "default"
+    case Connecting = "connecting"
+    case Open = "open"
+    case Closed = "closed"
+    case Error = "error"
 }
 
 public class EventSource: NSObject {
     
-    private var url: NSURL
+    public let url: NSURL
+    public private(set) var state: EventSourceState = .Default
+    
     private var currentTask: NSURLSessionDataTask?
     private var session: NSURLSession?
-    private var userDidClose: Bool = false
-    private var didOpen: Bool = false
     
     private var openHandler: EventHandler?
     private var messageHandler: EventHandler?
@@ -31,6 +46,7 @@ public class EventSource: NSObject {
     private var timeoutInterval: NSTimeInterval = DBL_MAX
     private var retryInterval: NSTimeInterval = 3
     private var retryTimer: NSTimer?
+    
     private var lastEventID: String?
     
     public init(url: NSURL) {
@@ -39,8 +55,11 @@ public class EventSource: NSObject {
     }
     
     public func open() {
-        userDidClose = false
-        didOpen = false
+        guard state != .Connecting && state != .Open else {
+            return
+        }
+        
+        state = .Connecting
         
         currentTask?.cancel()
         session?.invalidateAndCancel()
@@ -61,16 +80,22 @@ public class EventSource: NSObject {
     }
     
     public func close() {
-        userDidClose = true
-        didOpen = false
+        guard state != .Closed else {
+            return
+        }
+        
+        state = .Closed
+        
+        retryTimer?.invalidate()
         
         currentTask?.cancel()
         session?.invalidateAndCancel()
         
-        retryTimer?.invalidate()
-        retryTimer = nil
+        let event = Event(readyState: state, name: state.rawValue, data: "\(NSDate().timeIntervalSince1970)")
         
-        handleClose()
+        dispatch_async(dispatch_get_main_queue()) {
+            self.closeHandler?(event)
+        }
     }
     
     public func addHandler(eventName: String, handler: EventHandler) {
@@ -103,7 +128,7 @@ public class EventSource: NSObject {
 extension EventSource: NSURLSessionDataDelegate {
     
     public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-        if !didOpen {
+        if state != .Open {
             handleOpen()
         }
         else {
@@ -125,12 +150,11 @@ extension EventSource: NSURLSessionDataDelegate {
 extension EventSource {
     
     private func handleOpen() {
-        didOpen = true
+        state = .Open
         
         retryTimer?.invalidate()
-        retryTimer = nil
         
-        let event = Event(readyState: .Open)
+        let event = Event(readyState: state, name: state.rawValue, data: "\(NSDate().timeIntervalSince1970)")
         
         dispatch_async(dispatch_get_main_queue()) {
             self.openHandler?(event)
@@ -184,16 +208,17 @@ extension EventSource {
             }
         }
         
-        self.lastEventID = ID
+        lastEventID = ID
         
-        let event = Event(readyState: .Open, ID: ID, name: name, data: data)
+        let event = Event(readyState: state, id: ID, name: name, data: data)
         
         dispatch_async(dispatch_get_main_queue()) {
             self.messageHandler?(event)
         }
         
         if let eventName = event.name,
-            let namedEventhandlers = self.handlers[eventName] {
+            let namedEventhandlers = handlers[eventName] {
+            
             for handler in namedEventhandlers {
                 dispatch_async(dispatch_get_main_queue()) {
                     handler(event)
@@ -202,29 +227,21 @@ extension EventSource {
         }
     }
     
-    private func handleClose() {
-        didOpen = false
-        
-        let event = Event(readyState: .Closed)
-      
-        dispatch_async(dispatch_get_main_queue()) {
-            self.closeHandler?(event)
-        }
-    }
-    
     private func handleError(sessionError: NSError?) {
-        didOpen = false
+        guard state != .Closed else {
+            return
+        }
         
-        if !userDidClose {
-            let error = sessionError != nil ? sessionError : NSError(domain: "com.jcbator.eventsource", code: -1, userInfo: ["message" : "Unknown Error"])
-            let event = Event(readyState: .Closed, error: error)
+        state = .Error
+        
+        let error = sessionError != nil ? sessionError : NSError(domain: "com.jcbator.eventsource", code: -1, userInfo: ["message" : "Unknown Error"])
+        let event = Event(readyState: state, name: state.rawValue, data: "\(NSDate().timeIntervalSince1970)", error: error)
+        
+        dispatch_async(dispatch_get_main_queue()) {
+            self.errorHandler?(event)
             
-            dispatch_async(dispatch_get_main_queue()) {
-                self.errorHandler?(event)
-                
-                if self.retryTimer == nil {
-                    self.retryTimer = NSTimer.scheduledTimerWithTimeInterval(self.retryInterval, target: self, selector: #selector(EventSource.open), userInfo: nil, repeats: true)
-                }
+            if self.retryTimer == nil || !self.retryTimer!.valid {
+                self.retryTimer = NSTimer.scheduledTimerWithTimeInterval(self.retryInterval, target: self, selector: #selector(EventSource.open), userInfo: nil, repeats: true)
             }
         }
     }
