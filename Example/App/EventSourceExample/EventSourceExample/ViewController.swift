@@ -26,7 +26,7 @@ class ViewController: UIViewController {
     }
     
     func setupEventSource() {
-        let url = NSURL(string: "http://127.0.0.1:8000/stream")!
+        let url = NSURL(string: "http://localhost:8000/stream")!
         
         eventSource = EventSource(url: url)
 
