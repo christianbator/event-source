@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2457CDCB1D760A40009FEBF6 /* EventSource.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2457CDC91D760A39009FEBF6 /* EventSource.framework */; };
-		2457CDCC1D760A40009FEBF6 /* EventSource.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2457CDC91D760A39009FEBF6 /* EventSource.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		2457CDD21D762068009FEBF6 /* EventSource.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2457CDD01D762062009FEBF6 /* EventSource.framework */; };
+		2457CDD31D762068009FEBF6 /* EventSource.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2457CDD01D762062009FEBF6 /* EventSource.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		24A008DD1D74F7BC00ACDD52 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 24A008DC1D74F7BC00ACDD52 /* Assets.xcassets */; };
 		24A008E01D74F7BC00ACDD52 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 24A008DE1D74F7BC00ACDD52 /* LaunchScreen.storyboard */; };
 		24A008E91D74F7E000ACDD52 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A008E71D74F7E000ACDD52 /* AppDelegate.swift */; };
@@ -23,7 +23,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				2457CDCC1D760A40009FEBF6 /* EventSource.framework in Embed Frameworks */,
+				2457CDD31D762068009FEBF6 /* EventSource.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -31,7 +31,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2457CDC91D760A39009FEBF6 /* EventSource.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = EventSource.framework; sourceTree = "<group>"; };
+		2457CDD01D762062009FEBF6 /* EventSource.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = EventSource.framework; sourceTree = "<group>"; };
 		24A008D21D74F7BC00ACDD52 /* EventSourceExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EventSourceExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		24A008DC1D74F7BC00ACDD52 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		24A008DF1D74F7BC00ACDD52 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -46,7 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2457CDCB1D760A40009FEBF6 /* EventSource.framework in Frameworks */,
+				2457CDD21D762068009FEBF6 /* EventSource.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,7 +86,7 @@
 		24A008F41D74F8FC00ACDD52 /* Event Source */ = {
 			isa = PBXGroup;
 			children = (
-				2457CDC91D760A39009FEBF6 /* EventSource.framework */,
+				2457CDD01D762062009FEBF6 /* EventSource.framework */,
 			);
 			name = "Event Source";
 			sourceTree = "<group>";
@@ -275,6 +275,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/EventSourceExample",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = EventSourceExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -292,6 +293,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/EventSourceExample",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = EventSourceExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

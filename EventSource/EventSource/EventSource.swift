@@ -91,7 +91,7 @@ public class EventSource: NSObject {
         currentTask?.cancel()
         session?.invalidateAndCancel()
         
-        let event = Event(readyState: state, name: state.rawValue, data: "\(NSDate().timeIntervalSince1970)")
+        let event = Event(readyState: state, data: "\(NSDate().timeIntervalSince1970)")
         
         dispatch_async(dispatch_get_main_queue()) {
             self.closeHandler?(event)
@@ -154,7 +154,7 @@ extension EventSource {
         
         retryTimer?.invalidate()
         
-        let event = Event(readyState: state, name: state.rawValue, data: "\(NSDate().timeIntervalSince1970)")
+        let event = Event(readyState: state, data: "\(NSDate().timeIntervalSince1970)")
         
         dispatch_async(dispatch_get_main_queue()) {
             self.openHandler?(event)
@@ -235,7 +235,7 @@ extension EventSource {
         state = .Error
         
         let error = sessionError != nil ? sessionError : NSError(domain: "com.jcbator.eventsource", code: -1, userInfo: ["message" : "Unknown Error"])
-        let event = Event(readyState: state, name: state.rawValue, data: "\(NSDate().timeIntervalSince1970)", error: error)
+        let event = Event(readyState: state, data: "\(NSDate().timeIntervalSince1970)", error: error)
         
         dispatch_async(dispatch_get_main_queue()) {
             self.errorHandler?(event)
