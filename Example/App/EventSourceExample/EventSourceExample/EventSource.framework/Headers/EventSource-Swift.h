@@ -102,9 +102,14 @@ typedef int swift_int4  __attribute__((__ext_vector_type__(4)));
 
 SWIFT_CLASS("_TtC11EventSource11EventSource")
 @interface EventSource : NSObject
+@property (nonatomic, readonly, strong) NSURL * _Nonnull url;
 - (nonnull instancetype)initWithUrl:(NSURL * _Nonnull)url OBJC_DESIGNATED_INITIALIZER;
 - (void)open;
 - (void)close;
+@end
+
+
+@interface EventSource (SWIFT_EXTENSION(EventSource))
 @end
 
 @class NSURLSession;
@@ -117,10 +122,6 @@ SWIFT_CLASS("_TtC11EventSource11EventSource")
 - (void)URLSession:(NSURLSession * _Nonnull)session dataTask:(NSURLSessionDataTask * _Nonnull)dataTask didReceiveData:(NSData * _Nonnull)data;
 - (void)URLSession:(NSURLSession * _Nonnull)session task:(NSURLSessionTask * _Nonnull)task didCompleteWithError:(NSError * _Nullable)error;
 - (void)URLSession:(NSURLSession * _Nonnull)session didBecomeInvalidWithError:(NSError * _Nullable)error;
-@end
-
-
-@interface EventSource (SWIFT_EXTENSION(EventSource))
 @end
 
 #pragma clang diagnostic pop
