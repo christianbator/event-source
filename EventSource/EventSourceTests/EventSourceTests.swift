@@ -13,7 +13,7 @@ class EventSourceTests: XCTestCase {
     
     // TODO: - Tests :)
     
-    var eventSource = EventSource(url: NSURL(string: "http://localhost:8000/stream")!)
+    var eventSource = EventSource(url: URL(string: "http://localhost:8000/stream")!)
     
     override func setUp() {
         super.setUp()
