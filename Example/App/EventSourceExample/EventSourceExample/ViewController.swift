@@ -15,8 +15,8 @@ class ViewController: UIViewController {
     @IBOutlet var statusView: UIView!
     @IBOutlet var statusLabel: UILabel!
     
-    private var eventSource: EventSource?
-    private var events: [String] = []
+    fileprivate var eventSource: EventSource?
+    fileprivate var events: [String] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,7 +26,7 @@ class ViewController: UIViewController {
     }
     
     func setupEventSource() {
-        let url = NSURL(string: "http://localhost:8000/stream")!
+        let url = URL(string: "http://localhost:8000/stream")!
         
         eventSource = EventSource(url: url)
 
@@ -48,24 +48,24 @@ class ViewController: UIViewController {
         }
     }
     
-    func updateStatusView(event: Event) {
-        statusLabel.text = event.readyState.rawValue.capitalizedString
+    func updateStatusView(_ event: Event) {
+        statusLabel.text = event.readyState.rawValue.capitalized
         statusView.backgroundColor = event.readyState.color()
     }
     
-    func handleMessage(event: Event) {
+    func handleMessage(_ event: Event) {
         guard let message = event.data?.toDictionary(),
             let text = message["text"],
             let timestamp = message["timestamp"] else {
                 return
         }
         
-        self.events.insert("[\(timestamp)] \(text)", atIndex: 0)
+        self.events.insert("[\(timestamp)] \(text)", at: 0)
         
-        let nextIndexPath = NSIndexPath(forRow: 0, inSection: 0)
+        let nextIndexPath = IndexPath(row: 0, section: 0)
         
         self.tableView.beginUpdates()
-        self.tableView.insertRowsAtIndexPaths([nextIndexPath], withRowAnimation: .Top)
+        self.tableView.insertRows(at: [nextIndexPath], with: .top)
         self.tableView.endUpdates()
     }
     
@@ -81,14 +81,14 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDataSource {
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return events.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         
-        cell.textLabel?.text = events[indexPath.row]
+        cell.textLabel?.text = events[(indexPath as NSIndexPath).row]
         
         return cell
     }
@@ -98,9 +98,9 @@ extension ViewController: UITableViewDataSource {
 extension String {
     
     func toDictionary() -> [String: AnyObject]? {
-        if let data = self.dataUsingEncoding(NSUTF8StringEncoding) {
+        if let data = self.data(using: String.Encoding.utf8) {
             do {
-                let json = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? [String: AnyObject]
+                let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: AnyObject]
                 return json
             }
             catch {
@@ -120,11 +120,11 @@ extension EventSourceState {
         case .Open:
             return UIColor(red: 34/255, green: 139/255, blue: 34/255, alpha: 1)
         case .Closed:
-            return UIColor.redColor()
+            return UIColor.red
         case .Error:
-            return UIColor.orangeColor()
+            return UIColor.orange
         default:
-            return UIColor.clearColor()
+            return UIColor.clear
         }
     }
     

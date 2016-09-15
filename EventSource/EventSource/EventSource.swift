@@ -28,33 +28,33 @@ public enum EventSourceState: String {
     case Error = "error"
 }
 
-public class EventSource: NSObject {
+open class EventSource: NSObject {
     
-    public let url: NSURL
-    public private(set) var state: EventSourceState = .Default
+    open let url: URL
+    open fileprivate(set) var state: EventSourceState = .Default
     
-    private var currentTask: NSURLSessionDataTask?
-    private var session: NSURLSession?
+    fileprivate var currentTask: URLSessionDataTask?
+    fileprivate var session: Foundation.URLSession?
     
-    private var openHandler: EventHandler?
-    private var messageHandler: EventHandler?
-    private var closeHandler: EventHandler?
-    private var errorHandler: EventHandler?
+    fileprivate var openHandler: EventHandler?
+    fileprivate var messageHandler: EventHandler?
+    fileprivate var closeHandler: EventHandler?
+    fileprivate var errorHandler: EventHandler?
     
-    private var handlers: [String : [EventHandler]] = [:]
+    fileprivate var handlers: [String : [EventHandler]] = [:]
     
-    private var timeoutInterval: NSTimeInterval = DBL_MAX
-    private var retryInterval: NSTimeInterval = 3
-    private var retryTimer: NSTimer?
+    fileprivate var timeoutInterval: TimeInterval = DBL_MAX
+    fileprivate var retryInterval: TimeInterval = 3
+    fileprivate var retryTimer: Timer?
     
-    private var lastEventID: String?
+    fileprivate var lastEventID: String?
     
-    public init(url: NSURL) {
+    public init(url: URL) {
         self.url = url
         super.init()
     }
     
-    public func open() {
+    open func open() {
         guard state != .Connecting && state != .Open else {
             return
         }
@@ -64,10 +64,10 @@ public class EventSource: NSObject {
         currentTask?.cancel()
         session?.invalidateAndCancel()
         
-        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
-        session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+        let configuration = URLSessionConfiguration.default
+        session = Foundation.URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
         
-        let request = NSMutableURLRequest(URL: url, cachePolicy: .ReloadIgnoringLocalCacheData, timeoutInterval: timeoutInterval)
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: timeoutInterval)
         
         if let lastEventID = self.lastEventID {
             request.setValue(lastEventID, forHTTPHeaderField: "Last-Event-ID")
@@ -75,11 +75,11 @@ public class EventSource: NSObject {
         
         request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
         
-        currentTask = session?.dataTaskWithRequest(request)
+        currentTask = session?.dataTask(with: request)
         currentTask?.resume()
     }
     
-    public func close() {
+    open func close() {
         guard state != .Closed else {
             return
         }
@@ -91,14 +91,14 @@ public class EventSource: NSObject {
         currentTask?.cancel()
         session?.invalidateAndCancel()
         
-        let event = Event(readyState: state, data: "\(NSDate().timeIntervalSince1970)")
+        let event = Event(readyState: state, data: "\(Date().timeIntervalSince1970)")
         
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             self.closeHandler?(event)
         }
     }
     
-    public func addHandler(eventName: String, handler: EventHandler) {
+    open func addHandler(_ eventName: String, handler: @escaping EventHandler) {
         if handlers[eventName] == nil {
             handlers[eventName] = []
         }
@@ -106,28 +106,28 @@ public class EventSource: NSObject {
         handlers[eventName]?.append(handler)
     }
     
-    public func onOpen(handler: EventHandler) {
+    open func onOpen(_ handler: @escaping EventHandler) {
         openHandler = handler
     }
     
-    public func onMessage(handler: EventHandler) {
+    open func onMessage(_ handler: @escaping EventHandler) {
         messageHandler = handler
     }
     
-    public func onClose(handler: EventHandler) {
+    open func onClose(_ handler: @escaping EventHandler) {
         closeHandler = handler
     }
     
-    public func onError(handler: EventHandler) {
+    open func onError(_ handler: @escaping EventHandler) {
         errorHandler = handler
     }
     
 }
 
 
-extension EventSource: NSURLSessionDataDelegate {
+extension EventSource: URLSessionDataDelegate {
     
-    public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         if state != .Open {
             handleOpen()
         }
@@ -136,12 +136,12 @@ extension EventSource: NSURLSessionDataDelegate {
         }
     }
     
-    public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-        handleError(error)
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        handleError(error as NSError?)
     }
     
-    public func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
-        handleError(error)
+    public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+        handleError(error as NSError?)
     }
     
 }
@@ -149,20 +149,20 @@ extension EventSource: NSURLSessionDataDelegate {
 
 extension EventSource {
     
-    private func handleOpen() {
+    fileprivate func handleOpen() {
         state = .Open
         
         retryTimer?.invalidate()
         
-        let event = Event(readyState: state, data: "\(NSDate().timeIntervalSince1970)")
+        let event = Event(readyState: state, data: "\(Date().timeIntervalSince1970)")
         
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             self.openHandler?(event)
         }
     }
     
-    private func handleData(data: NSData) {
-        guard let eventString = String(data: data, encoding: NSUTF8StringEncoding) else {
+    fileprivate func handleData(_ data: Data) {
+        guard let eventString = String(data: data, encoding: String.Encoding.utf8) else {
             return
         }
         
@@ -176,21 +176,21 @@ extension EventSource {
         var name: String?
         var data: String?
         
-        let trimmedEventString = eventString.stringByTrimmingCharactersInSet(NSCharacterSet.newlineCharacterSet())
-        let components = trimmedEventString.componentsSeparatedByString(EventKeyValuePairSeparator) as [NSString]
+        let trimmedEventString = eventString.trimmingCharacters(in: CharacterSet.newlines)
+        let components = trimmedEventString.components(separatedBy: EventKeyValuePairSeparator) as [NSString]
         
         for component in components {
             guard component.length > 0 else {
                 continue
             }
             
-            let delimiterIndex = component.rangeOfString(KeyValueDelimiter).location
+            let delimiterIndex = component.range(of: KeyValueDelimiter).location
             if delimiterIndex == NSNotFound || delimiterIndex == (component.length - KeyValueDelimiter.characters.count) {
                 continue
             }
             
-            let key = component.substringToIndex(delimiterIndex)
-            let value = component.substringFromIndex(delimiterIndex + KeyValueDelimiter.characters.count)
+            let key = component.substring(to: delimiterIndex)
+            let value = component.substring(from: delimiterIndex + KeyValueDelimiter.characters.count)
             
             if key == EventIDKey {
                 ID = value
@@ -202,7 +202,7 @@ extension EventSource {
                 data = value
             }
             else if key == EventRetryKey {
-                if let timeIntervalValue = NSTimeInterval(value) {
+                if let timeIntervalValue = TimeInterval(value) {
                     self.retryInterval = timeIntervalValue
                 }
             }
@@ -212,7 +212,7 @@ extension EventSource {
         
         let event = Event(readyState: state, id: ID, name: name, data: data)
         
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             self.messageHandler?(event)
         }
         
@@ -220,14 +220,14 @@ extension EventSource {
             let namedEventhandlers = handlers[eventName] {
             
             for handler in namedEventhandlers {
-                dispatch_async(dispatch_get_main_queue()) {
+                DispatchQueue.main.async {
                     handler(event)
                 }
             }
         }
     }
     
-    private func handleError(sessionError: NSError?) {
+    fileprivate func handleError(_ sessionError: NSError?) {
         guard state != .Closed else {
             return
         }
@@ -235,13 +235,13 @@ extension EventSource {
         state = .Error
         
         let error = sessionError != nil ? sessionError : NSError(domain: "com.jcbator.eventsource", code: -1, userInfo: ["message" : "Unknown Error"])
-        let event = Event(readyState: state, data: "\(NSDate().timeIntervalSince1970)", error: error)
+        let event = Event(readyState: state, data: "\(Date().timeIntervalSince1970)", error: error)
         
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             self.errorHandler?(event)
             
-            if self.retryTimer == nil || !self.retryTimer!.valid {
-                self.retryTimer = NSTimer.scheduledTimerWithTimeInterval(self.retryInterval, target: self, selector: #selector(EventSource.open), userInfo: nil, repeats: true)
+            if self.retryTimer == nil || !self.retryTimer!.isValid {
+                self.retryTimer = Timer.scheduledTimer(timeInterval: self.retryInterval, target: self, selector: #selector(EventSource.open), userInfo: nil, repeats: true)
             }
         }
     }
