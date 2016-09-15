@@ -1,9 +1,9 @@
 # EventSource
 A simple Swift event source for fun and profit
 
-![Swift 2.2](https://img.shields.io/badge/Swift-2.2-orange.svg)
-![Platform](https://img.shields.io/badge/platform-iOS-lightgrey.svg)
-![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)
+![Swift](https://img.shields.io/badge/Swift-3.0-orange.svg)
+![Platform](https://img.shields.io/badge/platform-iOS%209.0-lightgrey.svg)
+![Carthage](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)
 
 EventSource is based on the [EventSource Web API](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) to enable [Server Sent Events](https://en.wikipedia.org/wiki/Server-sent_events).
 
