@@ -1,8 +1,7 @@
 # EventSource
 A simple Swift event source for fun and profit
 
-![Swift](https://img.shields.io/badge/Swift-3.0-orange.svg)
-![Platform](https://img.shields.io/badge/platform-iOS%209.0-lightgrey.svg)
+![Swift](https://img.shields.io/badge/Swift-4.0-orange.svg)
 ![Carthage](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)
 
 EventSource is based on the [EventSource Web API](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) to enable [Server Sent Events](https://en.wikipedia.org/wiki/Server-sent_events).
@@ -108,7 +107,7 @@ If all goes well, you should get a nice stream of events in your simulator
 ## Heads Up
 
 ### API Decisions
-EventSource deviates slightly from the Web API where it made sense for a better iOS API. For example, an `Event` has a `name` property so you can subscribe to specific, named events like `tweet.create`. This is in lieu of the Web API's `event` property of an `Event` (because who wants to call `let event = event.event`? Not me... 😞).
+EventSource deviates slightly from the Web API where it made sense for a better iOS API. For example, an `Event` has a `name` property so you can subscribe to specific, named events like `tweet.create`. This is in lieu of the Web API's `event` property of an `Event` (because who wants to write `let event = event.event`? Not me... 😞).
 
 ### Auto-Reconnect
 An `EventSource` will automatically reconnect to the server if it enters an `Error` state, and based on the protocol, a server can send a `retry` event with an interval indicating how frequently the `EventSource` should retry the connection after encountering an error. Be warned: an `EventSource` expects this interval to be in **seconds** - not milliseconds as described by the Web API.

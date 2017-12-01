@@ -3,7 +3,7 @@
 //  EventSource
 //
 //  Created by Christian Bator on 8/2/16.
-//  Copyright © 2016 FarmLogs. All rights reserved.
+//  Copyright © 2017 Christian Bator. All rights reserved.
 //
 
 import Foundation
@@ -43,7 +43,7 @@ open class EventSource: NSObject {
     
     fileprivate var handlers: [String : [EventHandler]] = [:]
     
-    fileprivate var timeoutInterval: TimeInterval = DBL_MAX
+    fileprivate var timeoutInterval: TimeInterval = .greatestFiniteMagnitude
     fileprivate var retryInterval: TimeInterval = 3
     fileprivate var retryTimer: Timer?
     
@@ -54,7 +54,7 @@ open class EventSource: NSObject {
         super.init()
     }
     
-    open func open() {
+    @objc open func open() {
         guard state != .Connecting && state != .Open else {
             return
         }
@@ -121,9 +121,7 @@ open class EventSource: NSObject {
     open func onError(_ handler: @escaping EventHandler) {
         errorHandler = handler
     }
-    
 }
-
 
 extension EventSource: URLSessionDataDelegate {
     
@@ -143,9 +141,7 @@ extension EventSource: URLSessionDataDelegate {
     public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
         handleError(error as NSError?)
     }
-    
 }
-
 
 extension EventSource {
     
@@ -185,12 +181,12 @@ extension EventSource {
             }
             
             let delimiterIndex = component.range(of: KeyValueDelimiter).location
-            if delimiterIndex == NSNotFound || delimiterIndex == (component.length - KeyValueDelimiter.characters.count) {
+            if delimiterIndex == NSNotFound || delimiterIndex == (component.length - KeyValueDelimiter.count) {
                 continue
             }
             
             let key = component.substring(to: delimiterIndex)
-            let value = component.substring(from: delimiterIndex + KeyValueDelimiter.characters.count)
+            let value = component.substring(from: delimiterIndex + KeyValueDelimiter.count)
             
             if key == EventIDKey {
                 ID = value
@@ -245,5 +241,4 @@ extension EventSource {
             }
         }
     }
-    
 }

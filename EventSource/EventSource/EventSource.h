@@ -3,7 +3,7 @@
 //  EventSource
 //
 //  Created by Christian Bator on 8/29/16.
-//  Copyright © 2016 jcbator. All rights reserved.
+//  Copyright © 2017 Christian Bator. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

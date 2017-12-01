@@ -3,7 +3,7 @@
 //  EventSource
 //
 //  Created by Christian Bator on 8/5/16.
-//  Copyright © 2016 FarmLogs. All rights reserved.
+//  Copyright © 2017 Christian Bator. All rights reserved.
 //
 
 import Foundation
