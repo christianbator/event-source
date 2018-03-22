@@ -121,7 +121,7 @@ An `EventSource` will automatically reconnect to the server if it enters an `Err
 Add the following line to your [Cartfile](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile).
 
 ```
-github "jcbator/EventSource"
+github "christianbator/EventSource"
 ```
 
 Then run 
