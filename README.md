@@ -1,5 +1,5 @@
 # EventSource
-A simple Swift event source for fun and profit
+Event source implementation for server-sent events
 
 ![Swift](https://img.shields.io/badge/Swift-4.0-orange.svg)
 ![Carthage](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)
